@@ -1,0 +1,16 @@
+{
+  "name": "Run Walk Cycle",
+  "short_name": "Run Walk",
+  "description": "Run/walk interval timer with an 8-week plan to 30 minutes non-stop.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F5F1",
+  "theme_color": "#F4F5F1",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
