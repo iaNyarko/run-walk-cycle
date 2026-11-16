@@ -220,6 +220,28 @@ nav.tabs svg{width:22px;height:22px}
 .feel button[aria-pressed="true"]{background:#fff;color:#141A16;border-color:#fff}
 .donemsg{font-weight:600;margin:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+
+/* photos */
+.hero.photo{background:linear-gradient(180deg,rgba(10,12,10,.15) 0%,rgba(10,12,10,.55) 45%,rgba(10,12,10,.88) 100%),url(hero.jpg) center 62%/cover,var(--ink)}
+.hero.photo::after{display:none}
+.photocard{border-radius:18px;overflow:hidden;position:relative;min-height:170px;display:flex;align-items:flex-end;background:var(--ink) center/cover no-repeat;color:#fff;box-shadow:var(--shadow)}
+.photocard::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.72))}
+.photocard p{position:relative;margin:0;padding:14px 16px;font-weight:700;font-size:17px;line-height:1.3}
+.photocard p small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+.donephoto{border-radius:18px;min-height:230px;background:center 22%/cover no-repeat url(done.jpg);position:relative;overflow:hidden;display:flex;align-items:flex-end}
+.donephoto::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.7))}
+.donephoto p{position:relative;margin:0;padding:12px 14px;font-weight:800;font-size:19px;color:#fff}
+.quip{font-size:16px;font-weight:600;opacity:.92;text-align:center;min-height:1.4em}
+/* pocket mode */
+.pocketbtn{border:2px solid rgba(255,255,255,.55);background:rgba(0,0,0,.12);color:inherit;border-radius:14px;padding:11px;font-weight:700;width:100%}
+.pocket{position:fixed;inset:0;z-index:60;background:#000;color:#3a3a3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pocket .pph{font-family:var(--f-num);font-size:34px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.pocket .ppc{font-family:var(--f-num);font-size:64px;font-weight:800;line-height:1}
+.pocket .pph.run{color:#5a2a18} .pocket .pph.walk{color:#174a43}
+.pocket .hold{margin-top:36px;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#555;background:conic-gradient(#888 calc(var(--h,0)*1%),#1a1a1a 0);position:relative}
+.pocket .hold::before{content:"";position:absolute;inset:5px;border-radius:50%;background:#000}
+.pocket .hold span{position:relative;text-align:center;line-height:1.2}
+.pocket .pnote{font-size:13px;color:#444;text-align:center;max-width:240px}
 </style>
 </head>
 <body>
@@ -272,13 +294,28 @@ const PRESETS=[
 ];
 
 /* ---------- settings (this device) ---------- */
-const DEFAULT={custom:{run:5,walk:2,rounds:4},warm:true,warmMin:5,cool:true,coolMin:5,voice:true,beeps:true,halfway:true,kmCalls:true,gps:true,music:true,goal:3,prog:0};
+const DEFAULT={custom:{run:5,walk:2,rounds:4},warm:true,warmMin:5,cool:true,coolMin:5,voice:true,beeps:true,halfway:true,kmCalls:true,gps:true,music:true,goal:3,prog:0,fun:true};
 const PKEY='runwalk.settings.v2';
 let S=JSON.parse(JSON.stringify(DEFAULT));
 try{const old=JSON.parse(localStorage.getItem('runwalk.plan.v1'));if(old){S.custom={run:old.run||5,walk:old.walk||2,rounds:old.rounds||4};['warm','warmMin','cool','coolMin','voice','beeps'].forEach(k=>{if(old[k]!=null)S[k]=old[k];});}}catch(e){}
 try{const s=JSON.parse(localStorage.getItem(PKEY));if(s)S=Object.assign(S,s,{custom:Object.assign({},S.custom,s.custom||{})});}catch(e){}
 const saveS=()=>{try{localStorage.setItem(PKEY,JSON.stringify(S));}catch(e){}};
 
+
+/* ---------- vibes (Settings → Ghana vibes) ---------- */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const FUN={
+  run:['Run! Pretend the trotro is leaving you.','Run! Your kelewele is waiting at the finish.','Go go go. Chale, move those legs.','Run! Small small, but run.'],
+  walk:['Walk. Breathe, chale, you survived.','Walk now. Catch your breath, champion.','Walk. Small small. You dey try.','Walk. Even the trotro slows down sometimes.'],
+  warm:['Warm up. Walk like you’re late for work.','Warm up. Brisk walk, like you saw your landlord.'],
+  cool:['Cool down. Walk easy, you earned it.','Cool down. Slow walk, like Sunday afternoon.'],
+  nonstop:['Abeg, don’t stop.','No stopping. Pretend there’s free jollof at the end.'],
+  half:['Halfway. No turning back now.','Halfway. You’ve come too far to quit.'],
+  done:['Session complete. Ayekoo! Kelewele is earned.','Done! Ayekoo, champion.','Session complete. Chale, you did it.'],
+  screen:{run:['Pretend the trotro is leaving you','Your kelewele is waiting','Move, chale!'],walk:['Breathe, chale','Small small','You survived. Breathe.'],warm:['Brisk walk, like you’re late for work'],cool:['Walk easy. You earned it']},
+  doneCap:['You did it. Kelewele is earned.','Ayekoo! Look at you sweating like a champion.','Drink water. You’re a legend now.'],
+  stopCap:['Stopping still counts. Rest, then go again.','Small small. Next time you go further.']
+};
 function segments(x){
   const seg=[];
   if(S.warm)seg.push({t:'warm',s:S.warmMin*60});
@@ -349,7 +386,7 @@ function header(title,extra){return '<div class="top"><div><div class="brand"><s
 function todayView(){
   const st=stats(),done=S.prog>=PROGRAM.length,x=sessFromProg(S.prog),t=totals(x),seg=segments(x);
   let h=header('Today',st.streak?'<span class="chip hot">'+ICON_FLAME+st.streak+' week'+(st.streak===1?'':'s')+'</span>':'');
-  h+='<section class="hero"><div class="eyebrow">'+(done?'Plan complete · keep it up':'Next up · '+progLabel(S.prog))+'</div>'+
+  h+='<section class="hero'+(S.fun?' photo':'')+'"><div class="eyebrow">'+(done?'Plan complete · keep it up':'Next up · '+progLabel(S.prog))+'</div>'+
     '<div class="title">'+sessTitle(x)+'</div>'+
     '<div class="strip" aria-hidden="true">'+seg.map(s=>'<i class="'+s.t+'" style="flex:'+s.s+'"></i>').join('')+'</div>'+
     '<div class="meta"><div><b class="num">'+mmss(t.all)+'</b>Total</div><div><b class="num">'+mmss(t.run)+'</b>Running</div><div><b class="num">×'+x.rounds+'</b>'+(x.rounds===1?'Block':'Rounds')+'</div></div>'+
@@ -369,6 +406,7 @@ const feelPill=f=>f?'<span class="pill '+f+'">'+({easy:'Easy',good:'Good',hard:'
 function planView(){
   const done=Math.min(S.prog,PROGRAM.length);
   let h=header('Plan');
+  if(S.fun)h+='<div class="photocard" style="background-image:url(plan.jpg);background-position:center 30%"><p>Small small, week by week.<small>Eight weeks from your first minute to 30 minutes non-stop.</small></p></div>';
   h+='<section class="card"><div class="ch"><h2>8 weeks to 30 minutes</h2><span class="sub num">'+done+' / '+PROGRAM.length+'</span></div><div class="progbar"><i style="width:'+(done/PROGRAM.length*100).toFixed(1)+'%"></i></div>'+
     '<p class="note">Three runs a week. Finish a session and the next one unlocks. Felt hard? Repeat it, that’s how you build up.</p>';
   for(let w=0;w<8;w++){
@@ -406,7 +444,7 @@ function historyView(){
     pbBox('Week streak',st.streak+' wk','goal: '+S.goal+' runs a week')+'</div></section>';
   h+='<section class="card" style="gap:4px"><div class="ch"><h2>All runs</h2><span class="sub">'+runs.length+'</span></div>';
   if(store.mode==='pending')h+='<p class="note">Loading…</p>';
-  else if(!runs.length)h+='<p class="note">No runs yet. Every run you finish or stop shows up here.</p>';
+  else if(!runs.length)h+='<p class="note">No runs yet. Every run you finish or stop shows up here.</p>'+(S.fun?'<div class="photocard" style="background-image:url(beach.jpg);background-position:center 40%;min-height:200px"><p>Run like something is chasing you.<small>Your first run is waiting.</small></p></div>':'');
   else h+=runs.slice(0,60).map(r=>{const d=new Date(r.startedAt);return '<button class="runrow" data-run="'+esc(r.id)+'"><b>'+DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]+(r.completed?'':'<span class="pill">Stopped</span>')+feelPill(r.feel)+'</b><div class="r num">'+(r.distM?km(r.distM):Math.round((r.runSec||0)/60))+'<span>'+(r.distM?'km':'min run')+'</span></div><small>'+esc(r.label||'')+' · '+mmss(r.totalSec||0)+' total</small></button>';}).join('');
   if(store.mode==='local')h+='<p class="note">Saved on this device only.</p>';
   return h+'</section>';
@@ -421,6 +459,8 @@ function settingsView(){
     sw('halfway','Halfway callout','“Halfway. 12 minutes to go.”',S.halfway)+
     sw('kmCalls','Kilometre callouts','Distance and pace every km (needs GPS)',S.kmCalls)+
     sw('music','Play nicely with music','Your music dips under the callouts instead of stopping',S.music)+'</section>';
+  h+='<section class="card"><div class="ch"><h2>Vibes</h2></div>'+
+    sw('fun','Ghana vibes','Funny voice lines, photos and “Ayekoo!” at the finish. Off is plain and simple.',S.fun)+'</section>';
   h+='<section class="card"><div class="ch"><h2>Tracking</h2></div>'+
     sw('gps','GPS distance and pace','Uses your location only while a run is going',S.gps)+
     '<p class="note" id="gpsNote">'+gpsNote()+'</p></section>';
@@ -428,6 +468,10 @@ function settingsView(){
     mini('warm','Warm-up walk','Loosens your legs first',S.warm,S.warmMin+'m','warmMin')+
     mini('cool','Cool-down walk','Replaces the last walk',S.cool,S.coolMin+'m','coolMin')+'</section>';
   h+='<section class="card"><div class="ch"><h2>Goal</h2></div><div class="trow"><div class="lbl">Runs per week<small>Hit it to keep your streak going</small></div><div class="mini"><button data-step="goal" data-d="-1" aria-label="Fewer">−</button><b class="num">'+S.goal+'</b><button data-step="goal" data-d="1" aria-label="More">+</button></div></div></section>';
+  h+='<section class="card"><div class="ch"><h2>Backup</h2></div><p class="note">Your runs live on this phone only. Save a backup now and then, and restore it if you change phones or clear your browser.</p>'+
+    '<div class="trow"><div class="lbl">'+store.runs.length+' run'+(store.runs.length===1?'':'s')+' saved<small>'+(lastBackup()?'Last backup '+lastBackup():'No backup yet')+'</small></div><button class="btn" id="bkSave" style="padding:9px 12px">Save backup</button></div>'+
+    '<div class="trow"><div class="lbl">Restore from a backup<small>Adds the runs from the file. Nothing is deleted.</small></div><button class="btn ghost" id="bkLoad" style="padding:9px 12px">Restore</button></div>'+
+    '<input type="file" id="bkFile" accept=".json,application/json" hidden></section>';
   h+='<section class="card"><div class="ch"><h2>Plan</h2></div><div class="trow"><div class="lbl">Start the 8-week plan again<small>Your run history stays</small></div><button class="btn ghost" id="resetPlan" style="padding:9px 12px">Reset</button></div><div id="resetConf"></div></section>';
   return h;
 }
@@ -500,9 +544,35 @@ $('#app').addEventListener('click',e=>{
     saveS();render();return;}
   const rr=e.target.closest('[data-run]');if(rr){openRun(rr.dataset.run);return;}
   if(e.target.id==='resetPlan'){$('#resetConf').innerHTML='<div class="trow"><span class="note">Go back to Week 1, Day 1?</span><button class="btn" id="resetYes" style="padding:9px 12px">Yes, reset</button></div>';return;}
-  if(e.target.id==='resetYes'){S.prog=0;saveS();tab='today';render();toast('Plan reset to Week 1');}
+  if(e.target.id==='resetYes'){S.prog=0;saveS();tab='today';render();toast('Plan reset to Week 1');return;}
+  if(e.target.id==='bkSave'){backupSave();return;}
+  if(e.target.id==='bkLoad'){$('#bkFile').click();return;}
 });
-$('#app').addEventListener('change',e=>{const k=e.target.dataset.set;if(!k)return;S[k]=e.target.checked;saveS();render();});
+$('#app').addEventListener('change',e=>{if(e.target.id==='bkFile'){const f=e.target.files&&e.target.files[0];if(f)backupRestore(f);e.target.value='';return;}const k=e.target.dataset.set;if(!k)return;S[k]=e.target.checked;saveS();render();});
+
+/* ---------- backup and restore ---------- */
+const BKEY='runwalk.lastBackup';
+function lastBackup(){try{const v=localStorage.getItem(BKEY);if(!v)return '';const d=new Date(v);return d.getDate()+' '+MON[d.getMonth()];}catch(e){return '';}}
+async function backupSave(){
+  const data={app:'run-walk-cycle',v:1,exportedAt:new Date().toISOString(),settings:S,runs:store.runs};
+  const json=JSON.stringify(data),name='run-walk-cycle-backup-'+ymd(new Date())+'.json';
+  try{
+    if(store.downloads){await store.downloads.save({filename:name,content:json,mimeType:'application/json'});}
+    else{const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);}
+    try{localStorage.setItem(BKEY,new Date().toISOString());}catch(e){}
+    toast('Backup saved: '+name);render();
+  }catch(e){toast('Couldn’t save the backup. Try again.');}
+}
+async function backupRestore(file){
+  let data;try{data=JSON.parse(await file.text());}catch(e){toast('That file isn’t a Run Walk Cycle backup.');return;}
+  if(!data||data.app!=='run-walk-cycle'||!Array.isArray(data.runs)){toast('That file isn’t a Run Walk Cycle backup.');return;}
+  const have=new Set(store.runs.map(r=>r.startedAt));let added=0;
+  const fresh=data.runs.filter(r=>r&&r.startedAt&&!have.has(r.startedAt));
+  if(store.mode==='db'){for(const r of fresh){const c=Object.assign({},r);delete c.id;try{await saveRun(c);added++;}catch(e){}}}
+  else{const a=localRuns();fresh.forEach(r=>{a.push(Object.assign({id:r.id||('r'+r.startedAt.toString(36))},r));added++;});a.sort((x,y)=>y.startedAt-x.startedAt);try{localStorage.setItem(LKEY,JSON.stringify(a.slice(0,500)));}catch(e){}store.runs=a;}
+  if(data.settings&&typeof data.settings==='object'){const prog=Math.max(S.prog,Number(data.settings.prog)||0);S=Object.assign({},S,data.settings,{custom:Object.assign({},S.custom,data.settings.custom||{}),prog});saveS();}
+  render();toast(added?'Restored '+added+' run'+(added===1?'':'s')+'.':'Nothing new in that backup. Your runs are all here.');
+}
 function openSess(i){
   const x=sessFromProg(i),t=totals(x);
   $('#sheetHost').innerHTML='<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sT"><div class="ch"><h3 id="sT">'+progLabel(i)+'</h3><button class="btn ghost" id="sClose" style="padding:6px 12px">Close</button></div>'+
@@ -569,10 +639,13 @@ function step(){
   if(i!==run.lastIdx){
     run.lastIdx=i;run.lastBeep=-1;
     beep(i===0?660:880,0.35);buzz([300,120,300]);
-    const nx=s.t==='run'?(run.x.walk>0?'Run for '+minLabel(s.s/60)+' minutes':'Run '+minLabel(s.s/60)+' minutes, non-stop. You’ve got this.'):s.t==='walk'?'Walk for '+minLabel(s.s/60)+' minutes':s.t==='warm'?'Warm up. Walk briskly':'Cool down. Walk easy';
+    const mins=minLabel(s.s/60)+' minutes';
+    const nx=S.fun?(s.t==='run'?(run.x.walk>0?pick(FUN.run)+' '+mins+'.':'Run '+mins+', non-stop. '+pick(FUN.nonstop)):s.t==='walk'?pick(FUN.walk)+' '+mins+'.':pick(FUN[s.t])):
+      (s.t==='run'?(run.x.walk>0?'Run for '+mins:'Run '+mins+', non-stop. You’ve got this.'):s.t==='walk'?'Walk for '+mins:s.t==='warm'?'Warm up. Walk briskly':'Cool down. Walk easy');
+    run.quip=S.fun?pick(FUN.screen[s.t]||['']):'';
     say((s.r&&s.t==='run'&&run.x.rounds>1?'Round '+s.r+'. ':'')+nx);
   }
-  if(S.halfway&&!run.half&&run.total>=240&&t>=run.total/2&&!run.paused){run.half=true;setTimeout(()=>say('Halfway. '+Math.round((run.total-t)/60)+' minutes to go.'),1200);}
+  if(S.halfway&&!run.half&&run.total>=240&&t>=run.total/2&&!run.paused){run.half=true;setTimeout(()=>say((S.fun?pick(FUN.half)+' ':'Halfway. ')+Math.round((run.total-t)/60)+' minutes to go.'),1200);}
   const whole=Math.ceil(left);
   if(!run.paused&&whole<=3&&whole>=1&&whole!==run.lastBeep&&i<run.seg.length-1){run.lastBeep=whole;beep(520,0.15);}
   renderLive(t,i,left);
@@ -584,21 +657,24 @@ function renderLive(t,i,left){
   if(!$('#L')){
     $('#live').innerHTML='<div class="live" id="L" role="region" aria-label="Session in progress"><div class="in">'+
       '<div class="lhead"><span id="Lround"></span><span id="Lleft"></span></div>'+
-      '<div class="phase" id="Lphase" aria-live="assertive"></div><div class="count" id="Lcount"></div>'+
+      '<div class="phase" id="Lphase" aria-live="assertive"></div><div class="quip" id="Lquip"></div><div class="count" id="Lcount"></div>'+
       '<div class="pbar"><i id="Lbar"></i></div><div class="nextup" id="Lnext"></div>'+
       '<div class="lstrip" id="Lstrip" aria-hidden="true">'+run.seg.map(y=>'<i style="flex:'+y.s+'"></i>').join('')+'</div>'+
       '<div class="gpsline" id="Lgps"'+(S.gps?'':' hidden')+'><div><b class="num" id="Ldist">0.00</b>km</div><div><b class="num" id="Lpace">—</b>avg pace</div></div>'+
       '<div class="lstats"><div><b class="num" id="Lel"></b>Elapsed</div><div><b class="num" id="Lrun"></b>Running</div><div><b class="num" id="Lpct"></b>Done</div></div>'+
       '<div id="Lconf"></div>'+
       '<div class="lctl"><button id="Lstop">Stop</button><button class="main" id="Lpause">Pause</button><button id="Lskip">Skip</button></div>'+
+      '<button class="pocketbtn" id="Lpocket">Pocket mode: black screen, taps locked</button>'+
       '<div class="warnline" id="Lwarn">Screen stays on while this is open.</div></div></div>';
-    $('#Lpause').onclick=togglePause;$('#Lskip').onclick=skip;$('#Lstop').onclick=()=>{run.confirm=true;renderConf();};
+    $('#Lpause').onclick=togglePause;$('#Lskip').onclick=skip;$('#Lpocket').onclick=pocketOn;$('#Lstop').onclick=()=>{run.confirm=true;renderConf();};
   }
   $('#L').className='live '+s.t+(run.paused?' paused':'');
   $('#Lround').textContent=run.x.label+(s.r&&runsTotal>1?' · Round '+s.r+'/'+runsTotal:'');
   $('#Lleft').textContent=mmssCeil(run.total-t)+' left';
   $('#Lphase').textContent=run.paused?'Paused':({warm:'Warm up',run:'Run',walk:'Walk',cool:'Cool down'}[s.t]);
   $('#Lcount').textContent=mmssCeil(left);
+  $('#Lquip').textContent=run.paused?'':(run.quip||'');
+  if(pocket){const ph=$('#Pph');ph.textContent=run.paused?'Paused':({warm:'Warm up',run:'Run',walk:'Walk',cool:'Cool down'}[s.t]);ph.className='pph '+s.t;$('#Pc').textContent=mmssCeil(left);}
   $('#Lbar').style.width=((1-left/s.s)*100).toFixed(1)+'%';
   $('#Lnext').textContent=nx?'Next: '+({warm:'Warm up',run:'Run',walk:'Walk',cool:'Cool down'}[nx.t])+' '+minLabel(nx.s/60)+' min':'Last stretch. Finish easy.';
   [...$('#Lstrip').children].forEach((el,k)=>el.className=k<i?'done':k===i?'now':'');
@@ -618,22 +694,40 @@ function togglePause(){
   step();
 }
 function skip(){const t=elapsed(),i=idxAt(t),s=run.seg[i];run.skipMs+=(s.at+s.s-t)*1000+1;step();}
+
+/* ---------- pocket mode: black screen, taps ignored, hold 2 s to unlock ---------- */
+let pocket=false;
+function pocketOn(){
+  if(pocket)return;pocket=true;keepAwake();
+  const p=document.createElement('div');p.className='pocket';p.id='pocketEl';p.setAttribute('role','dialog');p.setAttribute('aria-label','Pocket mode. Hold the circle for 2 seconds to unlock.');
+  p.innerHTML='<div class="pph" id="Pph"></div><div class="ppc num" id="Pc"></div><div class="hold" id="Phold"><span>Hold<br>to unlock</span></div><p class="pnote">Timer, voice and GPS keep going. The screen stays dark to save battery.</p>';
+  document.body.appendChild(p);
+  let t0=0,raf=0;const ring=$('#Phold');
+  const stop=()=>{t0=0;cancelAnimationFrame(raf);ring.style.setProperty('--h',0);};
+  const loop=()=>{if(!t0)return;const k=Math.min(1,(Date.now()-t0)/2000);ring.style.setProperty('--h',(k*100).toFixed(0));if(k>=1){pocketOff();return;}raf=requestAnimationFrame(loop);};
+  ring.addEventListener('pointerdown',e=>{e.preventDefault();t0=Date.now();loop();});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>ring.addEventListener(ev,stop));
+  p.addEventListener('contextmenu',e=>e.preventDefault());
+  if(run)step();
+}
+function pocketOff(){pocket=false;const p=$('#pocketEl');if(p)p.remove();buzz(60);}
 async function finish(completed){
-  if(run.done)return;run.done=true;clearInterval(tick);gpsStop();
+  if(run.done)return;run.done=true;clearInterval(tick);gpsStop();if(pocket)pocketOff();
   const t=Math.min(elapsed(),run.total);
   const runSec=Math.round(run.seg.reduce((a,y)=>a+(y.t==='run'?Math.max(0,Math.min(y.s,t-y.at)):0),0));
   const x=run.x;
   const rec={startedAt:run.startedAt,label:x.label==='Custom'?sessText(x):x.label+' · '+sessText(x),totalSec:Math.round(t),runSec,completed,plan:{run:x.run,walk:x.walk,rounds:x.rounds},prog:x.prog,feel:null};
   if(gps.dist>=50){rec.distM=Math.round(gps.dist);rec.splits=gps.splits.map(s=>Math.round(s));}
-  if(completed){beep(880,0.2);beep(1100,0.4,0.25);buzz([200,100,200,100,400]);say('Session complete. Well done.');}
+  if(completed){beep(880,0.2);beep(1100,0.4,0.25);buzz([200,100,200,100,400]);say(S.fun?pick(FUN.done):'Session complete. Well done.');}
   try{if(wake){wake.release();wake=null;}}catch(e){}
   let id=null,saved=true;if(t>=30){try{id=await saveRun(rec);rec.id=id;}catch(e){saved=false;}}else saved=null;
   const isPlan=completed&&x.prog!=null&&x.prog===S.prog;
   let feel=null,applied=false;
   const apply=()=>{if(applied||!isPlan)return;applied=true;if(feel!=='hard'){S.prog=Math.min(PROGRAM.length,S.prog+1);saveS();}};
   const msg=()=>!isPlan?'':feel==='hard'?'Felt hard? We’ll repeat '+progLabel(x.prog)+' next time. That’s how you build up.':x.prog+1>=PROGRAM.length?'That’s the whole plan. 30 minutes non-stop!':'Next up: '+progLabel(x.prog+1)+'.';
+  const cap=completed?pick(FUN.doneCap):pick(FUN.stopCap);
   const draw=()=>{
-    $('#live').innerHTML='<div class="live '+(completed?'walk':'warm')+'" id="L2"><div class="in"><div class="donebox"><h2>'+(completed?'Done.':'Stopped.')+'</h2>'+
+    $('#live').innerHTML='<div class="live '+(completed?'walk':'warm')+'" id="L2"><div class="in"><div class="donebox"><h2>'+(completed?'Done.':'Stopped.')+'</h2>'+(S.fun&&completed?'<div class="donephoto"><p>'+esc(cap)+'</p></div>':S.fun?'<p class="donemsg">'+esc(cap)+'</p>':'')+
     '<div class="lstats"><div><b class="num">'+mmss(t)+'</b>Total</div><div><b class="num">'+mmss(runSec)+'</b>Running</div><div><b class="num">'+(rec.distM?km(rec.distM)+' km':'—')+'</b>'+(rec.distM?'Distance':'No GPS')+'</div></div>'+
     (saved===null?'<p class="donemsg">Under 30 seconds, so it wasn’t saved.</p>':saved?'':'<p class="donemsg">Couldn’t save this one. Check your connection.</p>')+
     (saved&&id?'<div><p class="donemsg" style="margin-bottom:8px">How did that feel?</p><div class="feel" id="Dfeel">'+['easy','good','hard'].map(f=>'<button data-feel="'+f+'" aria-pressed="'+(feel===f)+'">'+({easy:'Easy',good:'Good',hard:'Hard'}[f])+'</button>').join('')+'</div></div>':'')+

@@ -1,6 +1,6 @@
 // Run Walk Cycle offline support. Bump VERSION when you upload a new index.html.
-const VERSION = 'run-walk-cycle-v1';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const VERSION = 'run-walk-cycle-v2';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png','./hero.jpg','./plan.jpg','./done.jpg','./beach.jpg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
